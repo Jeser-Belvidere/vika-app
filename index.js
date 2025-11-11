@@ -13,12 +13,15 @@ const headers = {
     trand: 'ТРЕНД ТЗ',
     date: 'Дата рекламы',
     placemarkets: 'Площадки',
-    lastView: 'Последний замер просмотров'
+    lastView: 'Последний замер просмотров',
+    socialMedia: "Соц. сеть"
 }
 
 const YOUTUBE = 'youtube'
 const INSTAGRAM = 'instagram'
 const TIKTOK = 'tiktok'
+const OTHER = 'other'
+
 
 const importFiles = (productsResult, fileName, deleteInitData = false) => {
 
@@ -33,8 +36,8 @@ const importFiles = (productsResult, fileName, deleteInitData = false) => {
     const stringyfiedJson = JSON.stringify(productsResult)
 
     try {
-        fs.writeFileSync(`./${fileName}.txt`, stringyfiedJson);
-        fs.writeFileSync(`./${fileName}.json`, stringyfiedJson);
+        fs.writeFileSync(`./results/${fileName}.txt`, stringyfiedJson);
+        fs.writeFileSync(`./results/${fileName}.json`, stringyfiedJson);
     } catch (err) {
         console.error(err);
     }
@@ -44,12 +47,14 @@ const sortVideosByViews = (preparedResults, minViewsCount = 2000) => {
     const copyResult = JSON.parse(JSON.stringify(preparedResults))
     delete copyResult.totalVideos
     Object.keys(copyResult).forEach(key => {
+
         copyResult[key].sortedVideos = copyResult[key].initData.filter(video => video[headers.lastView] > minViewsCount).sort((a, b) => b[headers.lastView] - a[headers.lastView])
-        if (copyResult[key].initData.length === 0) {
+        delete copyResult[key].initData
+
+        if (copyResult[key].sortedVideos.length === 0) {
             delete copyResult[key]
         }
 
-        delete copyResult[key].initData
     })
 
     importFiles(copyResult, 'filteredByViews')
@@ -58,14 +63,12 @@ const sortVideosByViews = (preparedResults, minViewsCount = 2000) => {
 const prepareRow = (row) => {
     if (row[headers.url].includes(YOUTUBE)) {
         row[headers.url] = YOUTUBE
-    }
-
-    if (row[headers.url].includes(INSTAGRAM)) {
+    }else if (row[headers.url].includes(INSTAGRAM)) {
         row[headers.url] = INSTAGRAM
-    }
-
-    if (row[headers.url].includes(TIKTOK)) {
+    }else if (row[headers.url].includes(TIKTOK)) {
         row[headers.url] = TIKTOK
+    } else {
+        row[headers.url] = OTHER
     }
     return row
 }
@@ -95,6 +98,10 @@ const onParsedCsv = () => {
                     views: 0,
                     videos: 0
                 },
+                other: {
+                    views: 0,
+                    videos: 0
+                },
                 trands: new Set()
             }
         }
@@ -119,6 +126,10 @@ const onParsedCsv = () => {
             productsResult[row[headers.name]].tiktok.views += Number(row[headers.lastView])
             productsResult[row[headers.name]].tiktok.videos += 1
         }
+        if (row[headers.url] === OTHER) {
+            productsResult[row[headers.name]].other.views += Number(row[headers.lastView])
+            productsResult[row[headers.name]].other.videos += 1
+        }
     })
 
 
@@ -134,7 +145,7 @@ const onParsedCsv = () => {
 }
 
 fs.createReadStream(path.resolve(__dirname, 'csv.csv'))
-    .pipe(csv.parse({ headers: true }))
+    .pipe(csv.parse({ headers: true, delimiter: ',' }))
     .on('error', error => console.error(error))
     .on('data', row => rows.push(row))
     .on('end', rowCount => {
