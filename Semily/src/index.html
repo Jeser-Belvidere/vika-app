@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>💖💖💖</title>
+  </head>
+  <body>
+    <h1>💖 Vikusik Exel/CSV Parser 💖</h1>
+
+    <div class="header">
+      <div class="input-wrapper">
+        <label for="csv-input" class="input-btn"
+          >Загрузи .csv или exel файл</label
+        >
+        <input
+          id="csv-input"
+          type="file"
+          accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+        />
+        <button id="downloadcsv-btn">Скачать SCV</button>
+      </div>
+
+      <div id="errors-widget">
+        <span id="errors-text-wrapper">
+          <span id="errors-text"></span>
+          <button id="errors-button">></button>
+        </span>
+
+        <div id="errors-popup"></div>
+      </div>
+    </div>
+
+    <div class="json-viewer-wrapper"></div>
+  </body>
+</html>

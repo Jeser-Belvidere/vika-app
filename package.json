@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "csv-parse": "^6.1.0",
     "fast-csv": "^5.0.2"
   }
 }
